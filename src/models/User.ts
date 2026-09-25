@@ -1,7 +1,6 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 import bcrypt from "bcrypt";
 
-
 export interface IUser extends Document {
   name: string;
   email: string;
@@ -9,8 +8,11 @@ export interface IUser extends Document {
   isVerified: boolean;
   verificationToken?: string;
   verificationTokenExpires?: Date;
+  loginOtpHash?: string;
+  loginOtpExpires?: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
+
 
 const userSchema = new Schema<IUser>(
   {
@@ -37,6 +39,7 @@ const userSchema = new Schema<IUser>(
       select: false,
       validate: {
         validator: function (value: string) {
+          
           const hasUpper = /[A-Z]/.test(value);
           const hasLower = /[a-z]/.test(value);
           const hasNumber = /[0-9]/.test(value);
@@ -57,6 +60,15 @@ const userSchema = new Schema<IUser>(
     verificationTokenExpires: {
       type: Date,
     },
+  
+    loginOtpHash: {
+      type: String,
+      select: false,
+    },
+    loginOtpExpires: {
+      type: Date,
+      select: false,
+    },
   },
   { timestamps: true }
 );
@@ -68,7 +80,6 @@ userSchema.pre("save", async function (this: IUser) {
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
-
 
 userSchema.methods.comparePassword = async function (
   candidatePassword: string

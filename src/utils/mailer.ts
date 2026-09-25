@@ -33,3 +33,21 @@ export async function sendVerificationEmail(
     `,
   });
 }
+
+export async function sendLoginOtpEmail(to: string, code: string): Promise<void> {
+  await transporter.sendMail({
+    from: `"VerifyMe" <${process.env.EMAIL_USER}>`,
+    to,
+    subject: "Your login verification code",
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: auto;">
+        <h2>Your login code</h2>
+        <p>Enter this code to finish logging in. It expires in 10 minutes.</p>
+        <p style="font-size: 32px; font-weight: bold; letter-spacing: 8px; background:#f4f6fb; padding: 16px 24px; border-radius: 8px; text-align: center;">
+          ${code}
+        </p>
+        <p>If you didn't just try to log in, you can safely ignore this email.</p>
+      </div>
+    `,
+  });
+}
